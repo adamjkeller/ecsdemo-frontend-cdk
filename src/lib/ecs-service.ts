@@ -41,8 +41,8 @@ export class ECSService extends Construct {
             image: ecs.ContainerImage.fromAsset("./application"),
             containerPort: props.containerPort,
             environment: {
-              CRYSTAL_URL: "http://ecsdemo-crystal.service.local:3000/crystal",
-              NODEJS_URL: "http://ecsdemo-nodejs.service.local:3000",
+              CRYSTAL_URL: `http://ecsdemo-crystal.service.${deployEnv}:3000/crystal`,
+              NODEJS_URL: `http://ecsdemo-nodejs.service.${deployEnv}:3000`,
               REGION: Stack.of(this).region,
             },
             logDriver: ecs.LogDriver.awsLogs({
