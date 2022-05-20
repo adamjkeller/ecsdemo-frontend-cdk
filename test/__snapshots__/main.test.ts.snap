@@ -1,0 +1,445 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot 1`] = `
+Object {
+  "Outputs": Object {
+    "ECSWorkshopFrontendLoadBalancerDNS3B62F226": Object {
+      "Value": Object {
+        "Fn::GetAtt": Array [
+          "ECSWorkshopFrontendLB7DFA5CDD",
+          "DNSName",
+        ],
+      },
+    },
+    "ECSWorkshopFrontendServiceURL54494A13": Object {
+      "Value": Object {
+        "Fn::Join": Array [
+          "",
+          Array [
+            "http://",
+            Object {
+              "Fn::GetAtt": Array [
+                "ECSWorkshopFrontendLB7DFA5CDD",
+                "DNSName",
+              ],
+            },
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": Object {
+    "BootstrapVersion": Object {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": Object {
+    "ECSWorkshopFrontendFrontendSvcLogGrp25DB1013": Object {
+      "DeletionPolicy": "Delete",
+      "Properties": Object {
+        "RetentionInDays": 3,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "ECSWorkshopFrontendLB7DFA5CDD": Object {
+      "Properties": Object {
+        "LoadBalancerAttributes": Array [
+          Object {
+            "Key": "deletion_protection.enabled",
+            "Value": "false",
+          },
+        ],
+        "Scheme": "internet-facing",
+        "SecurityGroups": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "ECSWorkshopFrontendLBSecurityGroup17C865E9",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": Array [
+          "s-12345",
+          "s-67890",
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "ECSWorkshopFrontendLBPublicListenerDF9F8EBB": Object {
+      "Properties": Object {
+        "DefaultActions": Array [
+          Object {
+            "TargetGroupArn": Object {
+              "Ref": "ECSWorkshopFrontendLBPublicListenerECSGroupC2B02E82",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": Object {
+          "Ref": "ECSWorkshopFrontendLB7DFA5CDD",
+        },
+        "Port": 80,
+        "Protocol": "HTTP",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "ECSWorkshopFrontendLBPublicListenerECSGroupC2B02E82": Object {
+      "Properties": Object {
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": Array [
+          Object {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+        ],
+        "TargetType": "ip",
+        "VpcId": "vpc-12345",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "ECSWorkshopFrontendLBSecurityGroup17C865E9": Object {
+      "Properties": Object {
+        "GroupDescription": "Automatically created Security Group for ELB ECSWorkshopFrontendLBBEBB0F0A",
+        "SecurityGroupIngress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow from anyone on port 80",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80,
+          },
+        ],
+        "VpcId": "vpc-12345",
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "ECSWorkshopFrontendLBSecurityGrouptoECSWorkshopFrontendServiceSecurityGroupAD3899D830008514E4C9": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "ECSWorkshopFrontendServiceSecurityGroup1F973EA0",
+            "GroupId",
+          ],
+        },
+        "FromPort": 3000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "ECSWorkshopFrontendLBSecurityGroup17C865E9",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 3000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "ECSWorkshopFrontendService80AA763E": Object {
+      "DependsOn": Array [
+        "ECSWorkshopFrontendLBPublicListenerECSGroupC2B02E82",
+        "ECSWorkshopFrontendLBPublicListenerDF9F8EBB",
+      ],
+      "Properties": Object {
+        "Cluster": Object {
+          "Fn::ImportValue": "clusterName-dev",
+        },
+        "DeploymentConfiguration": Object {
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 50,
+        },
+        "EnableECSManagedTags": false,
+        "HealthCheckGracePeriodSeconds": 60,
+        "LaunchType": "FARGATE",
+        "LoadBalancers": Array [
+          Object {
+            "ContainerName": "web",
+            "ContainerPort": 3000,
+            "TargetGroupArn": Object {
+              "Ref": "ECSWorkshopFrontendLBPublicListenerECSGroupC2B02E82",
+            },
+          },
+        ],
+        "NetworkConfiguration": Object {
+          "AwsvpcConfiguration": Object {
+            "AssignPublicIp": "DISABLED",
+            "SecurityGroups": Array [
+              Object {
+                "Fn::GetAtt": Array [
+                  "ECSWorkshopFrontendServiceSecurityGroup1F973EA0",
+                  "GroupId",
+                ],
+              },
+            ],
+            "Subnets": Array [
+              "p-12345",
+              "p-67890",
+            ],
+          },
+        },
+        "ServiceName": "ecsdemo-frontend",
+        "TaskDefinition": Object {
+          "Ref": "ECSWorkshopFrontendTaskDefB3DADD68",
+        },
+      },
+      "Type": "AWS::ECS::Service",
+    },
+    "ECSWorkshopFrontendServiceSecurityGroup1F973EA0": Object {
+      "Properties": Object {
+        "GroupDescription": "ECSWorkshopFrontend/ECSWorkshopFrontend/ECSWorkshopFrontend/Service/SecurityGroup",
+        "SecurityGroupEgress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "VpcId": "vpc-12345",
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "ECSWorkshopFrontendServiceSecurityGroupfromECSWorkshopFrontendLBSecurityGroupD6DE6DA130000E7E9259": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "FromPort": 3000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "ECSWorkshopFrontendServiceSecurityGroup1F973EA0",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "ECSWorkshopFrontendLBSecurityGroup17C865E9",
+            "GroupId",
+          ],
+        },
+        "ToPort": 3000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "ECSWorkshopFrontendTaskDefB3DADD68": Object {
+      "Properties": Object {
+        "ContainerDefinitions": Array [
+          Object {
+            "Environment": Array [
+              Object {
+                "Name": "CRYSTAL_URL",
+                "Value": "http://ecsdemo-crystal.service.dev:3000/crystal",
+              },
+              Object {
+                "Name": "NODEJS_URL",
+                "Value": "http://ecsdemo-nodejs.service.dev:3000",
+              },
+              Object {
+                "Name": "REGION",
+                "Value": "us-west-2",
+              },
+            ],
+            "Essential": true,
+            "Image": Object {
+              "Fn::Sub": "333258026273.dkr.ecr.us-west-2.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-333258026273-us-west-2:130e15d7b6d786f8e444360127f3ebf3632a81f23c9c7f31d8ed137c30654073",
+            },
+            "LogConfiguration": Object {
+              "LogDriver": "awslogs",
+              "Options": Object {
+                "awslogs-group": Object {
+                  "Ref": "ECSWorkshopFrontendFrontendSvcLogGrp25DB1013",
+                },
+                "awslogs-region": "us-west-2",
+                "awslogs-stream-prefix": "ecsworkshop-frontend-dev",
+              },
+            },
+            "Name": "web",
+            "PortMappings": Array [
+              Object {
+                "ContainerPort": 3000,
+                "Protocol": "tcp",
+              },
+            ],
+          },
+        ],
+        "Cpu": "256",
+        "ExecutionRoleArn": Object {
+          "Fn::GetAtt": Array [
+            "ECSWorkshopFrontendTaskDefExecutionRole2E6D0151",
+            "Arn",
+          ],
+        },
+        "Family": "ECSWorkshopFrontendTaskDef842D7F23",
+        "Memory": "1024",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": Array [
+          "FARGATE",
+        ],
+        "TaskRoleArn": Object {
+          "Fn::GetAtt": Array [
+            "ECSWorkshopFrontendTaskDefTaskRoleCE7A6BD1",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ECS::TaskDefinition",
+    },
+    "ECSWorkshopFrontendTaskDefExecutionRole2E6D0151": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ECSWorkshopFrontendTaskDefExecutionRoleDefaultPolicy3706A22C": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:",
+                    Object {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ecr:us-west-2:333258026273:repository/cdk-hnb659fds-container-assets-333258026273-us-west-2",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            Object {
+              "Action": Array [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::GetAtt": Array [
+                  "ECSWorkshopFrontendFrontendSvcLogGrp25DB1013",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ECSWorkshopFrontendTaskDefExecutionRoleDefaultPolicy3706A22C",
+        "Roles": Array [
+          Object {
+            "Ref": "ECSWorkshopFrontendTaskDefExecutionRole2E6D0151",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ECSWorkshopFrontendTaskDefTaskRoleCE7A6BD1": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ECSWorkshopFrontendTaskDefTaskRoleDefaultPolicy687302F8": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "ec2:DescribeSubnets",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ECSWorkshopFrontendTaskDefTaskRoleDefaultPolicy687302F8",
+        "Roles": Array [
+          Object {
+            "Ref": "ECSWorkshopFrontendTaskDefTaskRoleCE7A6BD1",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ECSWorkshopFrontendfrontendSharedSvcSecGrp3000fromECSWorkshopFrontendServiceSecurityGroupAD3899D830003000F8458F65": Object {
+      "Properties": Object {
+        "Description": "from ECSWorkshopFrontendServiceSecurityGroupAD3899D8:3000-3000",
+        "FromPort": 3000,
+        "GroupId": Object {
+          "Fn::ImportValue": "sharedSvcSecurityGroup3000-dev",
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "ECSWorkshopFrontendServiceSecurityGroup1F973EA0",
+            "GroupId",
+          ],
+        },
+        "ToPort": 3000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+  },
+  "Rules": Object {
+    "CheckBootstrapVersion": Object {
+      "Assertions": Array [
+        Object {
+          "Assert": Object {
+            "Fn::Not": Array [
+              Object {
+                "Fn::Contains": Array [
+                  Array [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  Object {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

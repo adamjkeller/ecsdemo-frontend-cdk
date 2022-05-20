@@ -1,5 +1,5 @@
-import { App } from "aws-cdk-lib";
-import { ECSDemoFrontend } from "../lib/frontend";
+import { App } from 'aws-cdk-lib';
+import { ECSDemoFrontend } from '../lib/frontend';
 
 // for development, use account/region from cdk cli
 const devEnv = {
@@ -9,6 +9,6 @@ const devEnv = {
 
 const app = new App();
 
-new ECSDemoFrontend(app, "ecsworkshop-frontend", { env: devEnv });
+new ECSDemoFrontend(app, 'ecsworkshop-frontend', { env: devEnv });
 
 app.synth();

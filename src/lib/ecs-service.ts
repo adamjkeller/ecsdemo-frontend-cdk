@@ -1,12 +1,12 @@
-import { Construct } from "constructs";
-import { RemovalPolicy, Stack } from "aws-cdk-lib";
-import { Platform } from "./platform";
+import { RemovalPolicy, Stack } from 'aws-cdk-lib';
 
-import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as ecs from "aws-cdk-lib/aws-ecs";
-import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as logs from "aws-cdk-lib/aws-logs";
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { Construct } from 'constructs';
+import { Platform } from './platform';
 
 export interface ECSServiceProps {
   containerPort: number;
@@ -19,11 +19,11 @@ export class ECSService extends Construct {
   constructor(scope: Construct, id: string, props: ECSServiceProps) {
     super(scope, id);
 
-    const platform = new Platform(this, "frontend");
+    const platform = new Platform(this, 'frontend');
 
-    const deployEnv = this.node.tryGetContext("deployEnv") ?? "dev";
+    const deployEnv = this.node.tryGetContext('deployEnv') ?? 'dev';
 
-    const taskLogGroup = new logs.LogGroup(this, "FrontendSvcLogGrp", {
+    const taskLogGroup = new logs.LogGroup(this, 'FrontendSvcLogGrp', {
       removalPolicy: RemovalPolicy.DESTROY,
       retention: logs.RetentionDays.THREE_DAYS,
     });
@@ -31,14 +31,14 @@ export class ECSService extends Construct {
     const frontendService =
       new ecsPatterns.ApplicationLoadBalancedFargateService(
         this,
-        "ECSWorkshopFrontend",
+        'ECSWorkshopFrontend',
         {
-          serviceName: "ecsdemo-frontend",
+          serviceName: 'ecsdemo-frontend',
           cluster: platform.ecsCluster,
           cpu: props.cpu ?? 256,
           memoryLimitMiB: props.memoryReservation ?? 1024,
           taskImageOptions: {
-            image: ecs.ContainerImage.fromAsset("./application"),
+            image: ecs.ContainerImage.fromAsset('./application'),
             containerPort: props.containerPort,
             environment: {
               CRYSTAL_URL: `http://ecsdemo-crystal.service.${deployEnv}:3000/crystal`,
@@ -50,19 +50,19 @@ export class ECSService extends Construct {
               logGroup: taskLogGroup,
             }),
           },
-        }
+        },
       );
 
     frontendService.taskDefinition.taskRole.addToPrincipalPolicy(
       new iam.PolicyStatement({
-        actions: ["ec2:DescribeSubnets"],
-        resources: ["*"],
-      })
+        actions: ['ec2:DescribeSubnets'],
+        resources: ['*'],
+      }),
     );
 
     frontendService.service.connections.allowTo(
       platform.sharedSecGrp3000,
-      ec2.Port.tcpRange(props.containerPort, props.containerPort)
+      ec2.Port.tcpRange(props.containerPort, props.containerPort),
     );
   }
 }
